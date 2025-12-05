@@ -4,34 +4,55 @@
 #include <memory>
 #include <string>
 
-#include "../npc/factory/npc_factory.h"
-#include "../combat/visitor/battle_visitor.h"
-#include "../combat/observer/console_observer.h"
-#include "../combat/observer/file_observer.h"
-#include "../npc/npc.h"
+// Forward declarations для уменьшения связности
+class NPC;
+class NPCFactory;
+class BattleVisitor;
+class ConsoleObserver;
+class FileObserver;
 
+// Single Responsibility: управление подземельем и NPC
+// High Cohesion: все методы связаны с управлением подземельем
 class DungeonEditor {
-private:
-    std::vector<std::unique_ptr<NPC>> npcs;
-    NPCFactory factory;
-    ConsoleObserver console_observer;
-    FileObserver file_observer;
-
 public:
     DungeonEditor();
-
+    ~DungeonEditor() = default;
+    
+    // Запрет копирования
+    DungeonEditor(const DungeonEditor&) = delete;
+    DungeonEditor& operator=(const DungeonEditor&) = delete;
+    
+    // Command: добавление NPC (изменяет состояние)
     void add_npc(const std::string& type, const std::string& name, int x, int y);
     
+    // Command: сохранение в файл
     void save_to_file(const std::string& filename);
+    
+    // Command: загрузка из файла
     void load_from_file(const std::string& filename);
     
+    // Query: печать списка (не изменяет состояние)
     void print_all() const;
     
+    // Command: запуск боя (изменяет состояние)
     void start_battle(double radius);
     
-    size_t get_alive_count() const;
-
-    bool is_name_exists(const std::string& name) const;
-
+    // Query: количество живых NPC
+    [[nodiscard]] size_t get_alive_count() const;
+    
+    // Query: проверка существования имени
+    [[nodiscard]] bool is_name_exists(const std::string& name) const;
+    
+    // Command: удаление мертвых NPC
     void remove_dead_npcs();
+
+private:
+    std::vector<std::unique_ptr<NPC>> npcs;
+    std::unique_ptr<NPCFactory> factory;
+    std::unique_ptr<ConsoleObserver> console_observer;
+    std::unique_ptr<FileObserver> file_observer;
+    
+    // Приватные вспомогательные методы (Tell Don't Ask)
+    void initialize_observers();
+    void cleanup_dead_npcs();
 };

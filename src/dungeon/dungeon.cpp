@@ -1,10 +1,23 @@
 #include "../../include/dungeon/dungeon.h"
+#include "../../include/npc/npc.h"
+#include "../../include/npc/npc_factory.h"
+#include "../../include/battle/battle_visitor.h"
+#include "../../include/battle/console_observer.h"
+#include "../../include/battle/file_observer.h"
 #include "../../include/geometry/point.h"
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 DungeonEditor::DungeonEditor() 
-    : file_observer("log.txt") {}
+    : factory(std::make_unique<NPCFactory>()) {
+    initialize_observers();
+}
+
+void DungeonEditor::initialize_observers() {
+    console_observer = std::make_unique<ConsoleObserver>();
+    file_observer = std::make_unique<FileObserver>("log.txt");
+}
 
 void DungeonEditor::add_npc(const std::string& type, const std::string& name, int x, int y) {
     try {
@@ -12,7 +25,7 @@ void DungeonEditor::add_npc(const std::string& type, const std::string& name, in
             return;
         }
         Point position(x, y);
-        auto npc = factory.create_by_type(type, name, position);
+        auto npc = factory->create(type, name, position);
         npcs.push_back(std::move(npc));
         std::cout << "Добавлен " << type << " '" << name << "' в позиции (" << x << ", " << y << ")\n";
     } catch (const std::exception& e) {
@@ -22,7 +35,7 @@ void DungeonEditor::add_npc(const std::string& type, const std::string& name, in
 
 void DungeonEditor::save_to_file(const std::string& filename) {
     try {
-        factory.save_to_file(filename, npcs);
+        factory->save_to_file(filename, npcs);
         std::cout << "Данные сохранены в файл: " << filename << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Ошибка при сохранении: " << e.what() << std::endl;
@@ -31,7 +44,7 @@ void DungeonEditor::save_to_file(const std::string& filename) {
 
 void DungeonEditor::load_from_file(const std::string& filename) {
     try {
-        auto loaded_npcs = factory.create_by_file(filename);
+        auto loaded_npcs = factory->load_from_file(filename);
         npcs = std::move(loaded_npcs);
         std::cout << "Данные загружены из файла: " << filename << std::endl;
     } catch (const std::exception& e) {
@@ -56,18 +69,17 @@ void DungeonEditor::start_battle(double radius) {
     std::cout << "=== НАЧАЛО БИТВЫ (радиус: " << radius << ") ===\n";
     
     BattleVisitor battle_visitor(radius);
-    battle_visitor.add_observer(&console_observer);
-    battle_visitor.add_observer(&file_observer);
+    battle_visitor.subscribe(console_observer.get());
+    battle_visitor.subscribe(file_observer.get());
     
+    // Tell Don't Ask: говорим visitor'у выполнить битву, не спрашиваем детали
     for (size_t i = 0; i < npcs.size(); ++i) {
         if (!npcs[i] || !npcs[i]->is_alive()) continue;
         
         for (size_t j = i + 1; j < npcs.size(); ++j) {
             if (!npcs[j] || !npcs[j]->is_alive()) continue;
             
-            auto pos1 = npcs[i]->get_position();
-            auto pos2 = npcs[j]->get_position();
-            double distance = pos1.distance_to(pos2);
+            double distance = npcs[i]->get_position().distance_to(npcs[j]->get_position());
             
             if (distance <= radius) {
                 battle_visitor.set_attacker(npcs[i].get());
@@ -75,37 +87,37 @@ void DungeonEditor::start_battle(double radius) {
             }
         }
     }
-    remove_dead_npcs();
+    
+    cleanup_dead_npcs();
     
     std::cout << "=== БИТВА ЗАВЕРШЕНА ===\n";
     std::cout << "Осталось живых NPC: " << get_alive_count() << "\n\n";
 }
 
 size_t DungeonEditor::get_alive_count() const {
-    size_t count = 0;
-    for (const auto& npc : npcs) {
-        if (npc != nullptr && npc->is_alive()) {
-            count++;
-        }
-    }
-    return count;
+    return std::count_if(npcs.begin(), npcs.end(),
+        [](const auto& npc) {
+            return npc != nullptr && npc->is_alive();
+        });
 }
 
 bool DungeonEditor::is_name_exists(const std::string& name) const {
-    for (const auto& npc : npcs) {
-        if (npc && npc->get_name() == name) {
-            return true;
-        }
-    }
-    return false;
+    return std::any_of(npcs.begin(), npcs.end(),
+        [&name](const auto& npc) {
+            return npc && npc->get_name() == name;
+        });
 }
 
 void DungeonEditor::remove_dead_npcs() {
-    for (auto it = npcs.begin(); it != npcs.end(); ) {
-        if (!*it || !(*it)->is_alive()) {
-            it = npcs.erase(it);
-        } else {
-            ++it;
-        }
-    }
+    cleanup_dead_npcs();
+}
+
+void DungeonEditor::cleanup_dead_npcs() {
+    npcs.erase(
+        std::remove_if(npcs.begin(), npcs.end(),
+            [](const auto& npc) {
+                return !npc || !npc->is_alive();
+            }),
+        npcs.end()
+    );
 }

@@ -27,11 +27,10 @@ add_executable(lab6
 add_executable(tests 
     test/test_point.cpp
     test/test_npc.cpp
-    test/test_npc_factory.cpp
-    test/test_dungeon_basic.cpp
-    test/test_dungeon_file.cpp
-    test/test_dungeon_battle.cpp 
-    test/test_observers.cpp
+    test/test_factory.cpp
+    test/test_dungeon.cpp
+    test/test_battle.cpp 
+    test/test_observer.cpp
     ${CPP_SOURCES}  
 )
 

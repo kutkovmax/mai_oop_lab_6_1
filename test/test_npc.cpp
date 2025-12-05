@@ -1,7 +1,7 @@
 #include "../include/npc/npc.h"
-#include "../include/npc/types/druid.h"
-#include "../include/npc/types/orc.h"
-#include "../include/npc/types/squirrel.h"
+#include "../include/npc/druid.h"
+#include "../include/npc/orc.h"
+#include "../include/npc/squirrel.h"
 #include "../include/geometry/point.h"
 #include <gtest/gtest.h>
 #include <memory>

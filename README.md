@@ -12,8 +12,7 @@
 
 #### 1. Factory Pattern
 - `NPCFactory` - создает NPC по типу
-- `Creator` - абстрактный класс для создания NPC
-- Конкретные создатели: `DruidCreator`, `OrcCreator`, `SquirrelCreator`
+- Регистрация создателей через функции (расширяемо)
 - Загрузка NPC из файла также использует Factory
 
 #### 2. Visitor Pattern
@@ -23,7 +22,7 @@
 
 #### 3. Observer Pattern
 - `Observer` - интерфейс для наблюдателей
-- `Subject` - управляет списком наблюдателей
+- `EventManager` (Subject) - управляет списком наблюдателей с использованием PIMPL
 - Конкретные наблюдатели:
   - `ConsoleObserver` - выводит события в консоль
   - `FileObserver` - записывает события в файл `log.txt`
@@ -31,45 +30,61 @@
 ### Структура проекта
 
 ```
-lab06/
-├── src/
-│   ├── main.cpp
-│   ├── dungeon/
-│   │   └── dungeon.cpp
-│   ├── npc/
-│   │   ├── npc.cpp
-│   │   ├── types/
-│   │   │   ├── druid.cpp
-│   │   │   ├── orc.cpp
-│   │   │   └── squirrel.cpp
-│   │   └── factory/
-│   │       ├── npc_factory.cpp
-│   │       ├── druid_creator.cpp
-│   │       ├── orc_creator.cpp
-│   │       └── squirrel_creator.cpp
-│   ├── combat/
-│   │   ├── visitor/
-│   │   │   └── battel_visitor.cpp
-│   │   └── observer/
-│   │       ├── console_observer.cpp
-│   │       ├── file_observer.cpp
-│   │       └── subject.cpp
-│   └── geometry/
-│       └── point.cpp
+.
+├── CMakeLists.txt
+├── README.md
+│
 ├── include/
 │   ├── dungeon/
+│   │   └── dungeon.h
+│   │
 │   ├── npc/
-│   ├── combat/
+│   │   ├── npc.h
+│   │   ├── orc.h
+│   │   ├── druid.h
+│   │   ├── squirrel.h
+│   │   └── npc_factory.h
+│   │
+│   ├── battle/
+│   │   ├── visitor.h
+│   │   ├── battle_visitor.h
+│   │   ├── observer.h
+│   │   ├── event_manager.h      // Subject (observer pattern) с PIMPL
+│   │   ├── console_observer.h
+│   │   └── file_observer.h
+│   │
 │   └── geometry/
-├── test/
-│   ├── test_npc.cpp
-│   ├── test_npc_factory.cpp
-│   ├── test_dungeon_basic.cpp
-│   ├── test_dungeon_battle.cpp
-│   ├── test_dungeon_file.cpp
-│   ├── test_observers.cpp
-│   └── test_point.cpp
-└── CMakeLists.txt
+│       └── point.h
+│
+├── src/
+│   ├── dungeon/
+│   │   └── dungeon.cpp
+│   │
+│   ├── npc/
+│   │   ├── npc.cpp
+│   │   ├── orc.cpp
+│   │   ├── druid.cpp
+│   │   ├── squirrel.cpp
+│   │   └── npc_factory.cpp
+│   │
+│   ├── battle/
+│   │   ├── battle_visitor.cpp
+│   │   ├── event_manager.cpp
+│   │   ├── console_observer.cpp
+│   │   └── file_observer.cpp
+│   │
+│   └── geometry/
+│       └── point.cpp
+│
+├── main.cpp
+│
+└── test/
+    ├── test_dungeon.cpp
+    ├── test_npc.cpp
+    ├── test_factory.cpp
+    ├── test_battle.cpp
+    ├── test_observer.cpp
+    └── test_point.cpp
 ```
 
 ### Функциональность
@@ -129,3 +144,11 @@ make
 - Боевая система проверяет обе стороны на возможность убийства (взаимные убийства)
 - Observer pattern позволяет легко добавлять новые типы логирования
 - Factory pattern обеспечивает расширяемость для новых типов NPC
+
+### Принципы проектирования
+
+- **SOLID**: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
+- **PIMPL**: EventManager использует Pointer to Implementation для инкапсуляции
+- **Tell Don't Ask**: методы говорят объектам что делать
+- **Command Query Separation**: команды изменяют состояние, запросы только читают
+- **Low Coupling / High Cohesion**: минимальные зависимости, четкое разделение модулей
