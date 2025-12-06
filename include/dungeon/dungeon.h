@@ -16,7 +16,7 @@ class FileObserver;
 class DungeonEditor {
 public:
     DungeonEditor();
-    ~DungeonEditor() = default;
+    ~DungeonEditor();
     
     // Запрет копирования
     DungeonEditor(const DungeonEditor&) = delete;

@@ -14,6 +14,8 @@ DungeonEditor::DungeonEditor()
     initialize_observers();
 }
 
+DungeonEditor::~DungeonEditor() = default;
+
 void DungeonEditor::initialize_observers() {
     console_observer = std::make_unique<ConsoleObserver>();
     file_observer = std::make_unique<FileObserver>("log.txt");

@@ -3,7 +3,7 @@
 #include "visitor.h"
 #include "event_manager.h"
 #include "observer.h"
-#include "../../npc/npc.h"
+#include "../npc/npc.h"
 #include <memory>
 
 // Forward declarations
