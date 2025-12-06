@@ -7,9 +7,6 @@
 #include <string>
 #include <functional>
 
-// Factory Pattern с применением SOLID принципов
-// Single Responsibility: создание и загрузка NPC
-// Open/Closed: легко расширяется для новых типов
 class NPCFactory {
 public:
     NPCFactory();
@@ -20,16 +17,13 @@ public:
     NPCFactory& operator=(const NPCFactory&) = delete;
     
     // Command: создание NPC по типу
-    [[nodiscard]] std::unique_ptr<NPC> create(const std::string& type, 
-                                               const std::string& name, 
-                                               const Point& position) const;
+    std::unique_ptr<NPC> create(const std::string& type, const std::string& name, const Point& position) const;
     
     // Command: загрузка NPC из файла
-    [[nodiscard]] std::vector<std::unique_ptr<NPC>> load_from_file(const std::string& filename) const;
+    std::vector<std::unique_ptr<NPC>> load_from_file(const std::string& filename) const;
     
     // Command: сохранение NPC в файл
-    void save_to_file(const std::string& filename, 
-                     const std::vector<std::unique_ptr<NPC>>& npcs) const;
+    void save_to_file(const std::string& filename, const std::vector<std::unique_ptr<NPC>>& npcs) const;
 
 private:
     // Внутренняя структура для регистрации создателей

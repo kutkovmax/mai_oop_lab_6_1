@@ -11,7 +11,6 @@ class Druid;
 class Orc;
 class Squirrel;
 
-// Command Query Separation: команды изменяют состояние, запросы только читают
 class BattleVisitor : public Visitor {
 public:
     explicit BattleVisitor(double radius);
@@ -25,7 +24,7 @@ public:
     void set_attacker(NPC* attacker);
     
     // Query: получение радиуса (не изменяет состояние)
-    [[nodiscard]] double get_radius() const;
+    double get_radius() const;
     
     // Command: добавление наблюдателя
     void subscribe(Observer* observer);

@@ -38,10 +38,10 @@ public:
     void start_battle(double radius);
     
     // Query: количество живых NPC
-    [[nodiscard]] size_t get_alive_count() const;
+    size_t get_alive_count() const;
     
     // Query: проверка существования имени
-    [[nodiscard]] bool is_name_exists(const std::string& name) const;
+    bool is_name_exists(const std::string& name) const;
     
     // Command: удаление мертвых NPC
     void remove_dead_npcs();

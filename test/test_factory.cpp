@@ -12,10 +12,10 @@ TEST(NPCFactoryTest, CreateDruid) {
     NPCFactory factory;
     Point position(10, 20);
     
-    auto npc = factory.create("Друид", "Айдар", position);
+    auto npc = factory.create("Друид", "Друид1", position);
     
     EXPECT_NE(npc, nullptr);
-    EXPECT_EQ(npc->get_name(), "Айдар");
+    EXPECT_EQ(npc->get_name(), "Друид1");
     EXPECT_EQ(npc->get_type(), "Друид");
     EXPECT_EQ(npc->get_position().get_x(), 10);
     EXPECT_EQ(npc->get_position().get_y(), 20);
@@ -26,10 +26,10 @@ TEST(NPCFactoryTest, CreateOrc) {
     NPCFactory factory;
     Point position(5, 15);
     
-    auto npc = factory.create("Орк", "Максим", position);
+    auto npc = factory.create("Орк", "Орк1", position);
     
     EXPECT_NE(npc, nullptr);
-    EXPECT_EQ(npc->get_name(), "Максим");
+    EXPECT_EQ(npc->get_name(), "Орк1");
     EXPECT_EQ(npc->get_type(), "Орк");
     EXPECT_EQ(npc->get_position().get_x(), 5);
     EXPECT_EQ(npc->get_position().get_y(), 15);
